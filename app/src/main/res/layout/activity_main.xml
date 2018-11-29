@@ -1,29 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="com.a706_4_6.calculator.MainActivity">
+    android:id="@+id/GridLayout1"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:columnCount="4"
+    android:orientation="horizontal"
+    android:rowCount="6" >
 
-    <Button
-        android:id="@+id/button"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:text="1"
-        tools:layout_editor_absoluteX="68dp"
-        tools:layout_editor_absoluteY="176dp" />
+    <TextView
+        android:layout_columnSpan="4"
+        android:layout_gravity="fill"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:background="#FFCCCC"
+        android:text="0"
+        android:textSize="50sp" />
+    <Button android:text="AC" />
 
-    <Button
-        android:id="@+id/button1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Button" />
+    <Button android:text="←" />
 
-    <Button
-        android:id="@+id/button2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Button" />
+    <Button android:text="+/-" />
 
-</android.support.constraint.ConstraintLayout>
+    <Button android:text="÷" />
+
+    <Button android:text="1" />
+
+    <Button android:text="2" />
+
+    <Button android:text="3" />
+
+    <Button android:text="×" />
+
+    <Button android:text="4" />
+
+    <Button android:text="5" />
+
+    <Button android:text="6" />
+
+    <Button android:text="-" />
+
+    <Button android:text="7" />
+
+    <Button android:text="8" />
+
+    <Button android:text="9" />
+
+    <Button android:text="+" />
+
+    <Button android:text="%" />
+
+    <Button android:text="0" />
+
+    <Button android:text="." />
+
+    <Button android:text="=" />
+
+</GridLayout>
