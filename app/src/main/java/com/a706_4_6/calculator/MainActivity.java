@@ -8,7 +8,7 @@ import android.widget.TextView;
 import java.util.regex.*;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-    Button bt_0,bt_1,bt_2,bt_3,bt_4,bt_5,bt_6,bt_7,bt_8,bt_9,bt_pt,bt_prct,bt_AC,bt_bckspce,bt_plsmns,bt_pls,bt_mns,bt_mul,bt_div,bt_eq;
+    Button bt_0,bt_1,bt_2,bt_3,bt_4,bt_5,bt_6,bt_7,bt_8,bt_9,bt_pt,bt_AC,bt_bckspce,bt_pls,bt_mns,bt_mul,bt_div,bt_eq;
     TextView tv_frml,tv_rslt;
     boolean clear_flag,operator_flag,operator_exist_flag;         //clearflag默认为false
     String pattern = "(\\d+)(\\+|×|-|÷)(\\d+)";
@@ -31,10 +31,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         bt_8 = (Button) findViewById(R.id.button_8);
         bt_9 = (Button) findViewById(R.id.button_9);
         bt_pt = (Button) findViewById(R.id.button_pt);
-        bt_prct = (Button) findViewById(R.id.button_prct);
         bt_AC = (Button) findViewById(R.id.button_AC);
         bt_bckspce = (Button) findViewById(R.id.button_bckspce);
-        bt_plsmns = (Button) findViewById(R.id.button_plsmns);
         bt_pls = (Button) findViewById(R.id.button_pls);
         bt_mns = (Button) findViewById(R.id.button_mns);
         bt_mul = (Button) findViewById(R.id.button_mul);
@@ -54,10 +52,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         bt_8.setOnClickListener(this);
         bt_9.setOnClickListener(this);
         bt_pt.setOnClickListener(this);
-        bt_prct.setOnClickListener(this);
         bt_AC.setOnClickListener(this);
         bt_bckspce.setOnClickListener(this);
-        bt_plsmns.setOnClickListener(this);
         bt_pls.setOnClickListener(this);
         bt_mns.setOnClickListener(this);
         bt_mul.setOnClickListener(this);
