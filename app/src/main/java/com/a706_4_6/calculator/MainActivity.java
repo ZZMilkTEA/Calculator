@@ -153,7 +153,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         try {
             tv_rslt.setText(operation(exp));
         } catch (Exception e) {
-            tv_rslt.setText("输入格式非法");
+            tv_rslt.setText(e.getMessage());
         }
     }
 
@@ -162,7 +162,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Stack<Character> stack_opr = new Stack();
         String number="";
 
-        for (int i = 0; i < formula.length(); i++) {
+        for (int i = 0; i <formula.length(); i++) {
             if(Pattern.matches (Character.toString(formula.charAt(i)),pattern)){   //如果是符号
 
                 if(prior(formula.charAt(i))>prior(stack_opr.peek())) {                     //当是符号时，与符号栈顶比较优先级，比符号栈顶优先级高则进栈
@@ -191,7 +191,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             char operator=stack_opr.pop();
             stack_num.push(caculate(l_number,r_number,operator));
         }
-        return stack_num.toString();
+        return stack_num.pop().toString();
     }
 
     double caculate(double l_number,double r_number,char operator){
@@ -205,9 +205,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
     int prior(char operator)
     {
-        if (operator == '+' || operator == '-')
+        if (operator == '＋' || operator == '－')
             return 1;
-        if (operator == '*' || operator == '/')
+        if (operator == '×' || operator == '÷')
             return 2;
         return 0;
     }
