@@ -5,13 +5,15 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
+import java.util.Stack;
 import java.util.regex.*;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     Button bt_0,bt_1,bt_2,bt_3,bt_4,bt_5,bt_6,bt_7,bt_8,bt_9,bt_pt,bt_AC,bt_bckspce,bt_pls,bt_mns,bt_mul,bt_div,bt_eq;
     TextView tv_frml,tv_rslt;
-    boolean clear_flag,operator_flag,operator_exist_flag;         //clearflag默认为false
-    String pattern = "(\\d+)(\\+|×|-|÷)(\\d+)";
+    boolean clear_flag,point_flag;       //clearflag默认为false
+    String pattern = "＋|×|－|÷";
     Pattern patrn = Pattern.compile(pattern);    // 创建 Pattern 对象，判断符号用
     Matcher m;// 创建 matcher 对象，输出判断
     //定义控件对象，通过接口方式实现事件的监听
@@ -66,8 +68,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         String str = tv_frml.getText().toString();
-        if (Pattern.matches(pattern,str))operator_exist_flag=true;
-        else operator_exist_flag=false;
         switch (v.getId()) {
             case R.id.button_0:
             case R.id.button_1:
@@ -79,7 +79,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.button_7:
             case R.id.button_8:
             case R.id.button_9:
-            case R.id.button_pt:
                 if(clear_flag)
                 {
                     clear_flag=false;
@@ -87,6 +86,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     tv_frml.setText("");
                 }
                 tv_frml.setText(str + ((Button) v).getText());
+                break;
+            case R.id.button_pt:
+                if(clear_flag)
+                {
+                    clear_flag=false;
+                    str="";
+                    tv_frml.setText("");
+                }
+                if (point_flag)break;
+                tv_frml.setText(str + ((Button) v).getText());
+                point_flag=true;
                 break;
             case R.id.button_pls:
             case R.id.button_mul:
@@ -98,9 +108,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     str="";
                     tv_frml.setText("");
                 }
-                if(operator_exist_flag)break;
                 //判断用
                 tv_frml.setText(str + ((Button) v).getText());
+                point_flag=false;
                 break;
             case R.id.button_AC:
                 if(clear_flag)
@@ -128,68 +138,80 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private void getresult(){
+    private void getresult() {
         String exp = tv_frml.getText().toString();
 
         if (exp == null || exp.equals("")) {
-                return;
-            }
+            return;
+        }
         if (clear_flag) {
-                clear_flag = false;
-                return;
-            }
+            clear_flag = false;
+            return;
+        }
         clear_flag = true;
-        double result = 0;
-        m= patrn.matcher(exp);
-       try {
-           m.find();
-           String s1 = m.group(1);
-           String op = m.group(2);
-           String s2 = m.group(3);
 
-        if (!s1.equals("") && !s2.equals("")) {
-            double d1 = Double.parseDouble(s1);
-            double d2 = Double.parseDouble(s2);
-            //强制类型转换
-
-            if (op.equals("+")) {
-                result = d1 + d2;
-            } else if (op.equals("-")) {
-                result = d1 - d2;
-            } else if (op.equals("×")) {
-                result = d1 * d2;
-            } else if (op.equals("÷")) {
-                if (d1 == 0) {
-                    result = 0;
-                } else result = d1 / d2;
-            }
-
-            if (!s1.contains(".") && !s2.contains(".") && !op.equals("÷")) {
-                int r = (int) result;
-                tv_rslt.setText(r + "");
-            } else {
-                tv_rslt.setText(result + "");
-            }
-
-        } else if (!s1.equals("") && s2.equals("")) {
-            tv_rslt.setText(exp);
-        } else if (s1.equals("") && !s2.equals("")) {
-            double d2 = Double.parseDouble(s2);
-            if (op.equals("+")) {
-                result = 0 + d2;
-            } else if (op.equals("-")) {
-                result = 0 - d2;
-            } else if (op.equals("×")) {
-                result = 0 * d2;
-            } else if (op.equals("÷")) {
-                result = 0;
-            }
-        } else {
-            tv_frml.setText("");
+        try {
+            tv_rslt.setText(operation(exp));
+        } catch (Exception e) {
+            tv_rslt.setText("输入格式非法");
         }
-       }catch(PatternSyntaxException e){
-           tv_rslt.setText("输入格式非法");
-       }
+    }
+
+    String operation(String formula) {
+        Stack<Double> stack_num = new Stack();
+        Stack<Character> stack_opr = new Stack();
+        String number="";
+
+        for (int i = 0; i < formula.length(); i++) {
+            if(Pattern.matches (Character.toString(formula.charAt(i)),pattern)){   //如果是符号
+
+                if(prior(formula.charAt(i))>prior(stack_opr.peek())) {                     //当是符号时，与符号栈顶比较优先级，比符号栈顶优先级高则进栈
+                    stack_opr.push(formula.charAt(i));
+                    stack_num.push(Double.parseDouble(number));
+                    number = "";
+                }
+
+                else{
+                    double r_number=stack_num.pop();
+                    double l_number=stack_num.pop();
+                    char operator=stack_opr.pop();
+                    stack_num.push(caculate(l_number,r_number,operator));
+                    number = "";
+                }
+            }
+            else{                                                                   //如果是数字
+                number=number.concat(Character.toString(formula.charAt(i)));
+            }
         }
+        stack_num.push(Double.parseDouble(number));                 //最后补进栈的数字
+
+        while(!stack_opr.empty()){
+            double r_number=stack_num.pop();
+            double l_number=stack_num.pop();
+            char operator=stack_opr.pop();
+            stack_num.push(caculate(l_number,r_number,operator));
+        }
+        return stack_num.toString();
+    }
+
+    double caculate(double l_number,double r_number,char operator){
+        switch (operator){
+            case '＋':return l_number+r_number;
+            case '－':return l_number-r_number;
+            case '×':return l_number*r_number;
+            case '÷':return l_number/r_number;
+        }
+        return 0;
+    }
+    int prior(char operator)
+    {
+        if (operator == '+' || operator == '-')
+            return 1;
+        if (operator == '*' || operator == '/')
+            return 2;
+        return 0;
+    }
+
+
 }
 
