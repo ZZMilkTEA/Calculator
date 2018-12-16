@@ -12,7 +12,7 @@ import java.util.regex.*;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     Button bt_0,bt_1,bt_2,bt_3,bt_4,bt_5,bt_6,bt_7,bt_8,bt_9,bt_pt,bt_AC,bt_bckspce,bt_pls,bt_mns,bt_mul,bt_div,bt_eq;
     TextView tv_frml,tv_rslt;
-    boolean clear_flag,point_flag;       //clearflag默认为false
+    boolean clear_flag,point_flag;       //都默认为false
     String pattern = "＋|×|－|÷";
     Pattern patrn = Pattern.compile(pattern);    // 创建 Pattern 对象，判断符号用
     Matcher m;// 创建 matcher 对象，输出判断
@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     str="";
                     tv_frml.setText("");
                 }
-                if (point_flag)break;
+                if (point_flag)break;   //若该数字存在小数点，则点击无效
                 tv_frml.setText(str + ((Button) v).getText());
                 point_flag=true;
                 break;
@@ -119,6 +119,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     str="";
                     tv_frml.setText("");
                 }
+                point_flag=false;       //小数点标志置无
                 tv_frml.setText("");
                 break;
             case R.id.button_bckspce:
@@ -129,6 +130,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     tv_frml.setText("");
                 }
                 if (str != null && !str.equals("")) {
+                    if(str.charAt(str.length()-1)=='.') point_flag=false;   //如果删除的是小数点，则小数点标志置无
                     tv_frml.setText(str.substring(0, str.length() - 1));
                 }
                 break;
@@ -153,7 +155,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         try {
             tv_rslt.setText(operation(exp));
         } catch (Exception e) {
-            tv_rslt.setText(e.getMessage());
+            tv_rslt.setText(e.getMessage());    //测试用，将错误信息显示在结果框上
         }
     }
 
@@ -163,38 +165,48 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String number="";
 
         for (int i = 0; i <formula.length(); i++) {
-            if(Pattern.matches (Character.toString(formula.charAt(i)),pattern)){   //如果是符号
-
-                if(prior(formula.charAt(i))>prior(stack_opr.peek())) {                     //当是符号时，与符号栈顶比较优先级，比符号栈顶优先级高则进栈
+            if(Pattern.matches (pattern,Character.toString(formula.charAt(i)))){   //如果是符号
+                if(stack_opr.isEmpty()) {               //先判断符号栈是否栈空，不然比较时会出错
                     stack_opr.push(formula.charAt(i));
                     stack_num.push(Double.parseDouble(number));
                     number = "";
                 }
-
-                else{
-                    double r_number=stack_num.pop();
-                    double l_number=stack_num.pop();
-                    char operator=stack_opr.pop();
-                    stack_num.push(caculate(l_number,r_number,operator));
-                    number = "";
+                    else if(prior(formula.charAt(i))>prior(stack_opr.peek())) {             //当是符号时，与符号栈顶比较优先级，比符号栈顶优先级高则进栈
+                        stack_opr.push(formula.charAt(i));
+                        stack_num.push(Double.parseDouble(number));
+                        number = "";
+                    }
+                    else {                      //比栈顶符号优先级相同或低时，对前两操作数和符号栈顶符号进行运算，并将结果压操作数栈
+                        stack_num.push(Double.parseDouble(number));//这里其实算多余操作...只是为了逻辑上统一
+                        number = "";
+                        double r_number=stack_num.pop();
+                        double l_number=stack_num.pop();
+                        char operator=stack_opr.pop();
+                        stack_num.push(caculate(l_number,r_number,operator));
+                        stack_opr.push(formula.charAt(i));         //同时别忘了把新符号入栈，否则下次循环不读该符号了
                 }
             }
             else{                                                                   //如果是数字
                 number=number.concat(Character.toString(formula.charAt(i)));
             }
         }
-        stack_num.push(Double.parseDouble(number));                 //最后补进栈的数字
+        stack_num.push(Double.parseDouble(number));    //最后补进栈的数字
 
-        while(!stack_opr.empty()){
+        while(!stack_opr.isEmpty()){        //需要的东西全部入栈后，回头依次算优先级最低的符号，直到符号栈空
             double r_number=stack_num.pop();
             double l_number=stack_num.pop();
             char operator=stack_opr.pop();
-            stack_num.push(caculate(l_number,r_number,operator));
+            stack_num.push(caculate(l_number,r_number,operator));   //结果压操作数栈
         }
-        return stack_num.pop().toString();
+        double result=stack_num.pop();
+        if (!formula.contains(".")){    //如果所有的操作数不含小数点，则结果以整型输出
+            int resultInt=(int)result;
+            return  resultInt+"";
+        }
+        return result+"";   //含小数点则以浮点型输出
     }
 
-    double caculate(double l_number,double r_number,char operator){
+    double caculate(double l_number,double r_number,char operator){ //加减乘除的运算逻辑
         switch (operator){
             case '＋':return l_number+r_number;
             case '－':return l_number-r_number;
@@ -203,7 +215,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         return 0;
     }
-    int prior(char operator)
+    int prior(char operator)    //运算优先级的设置
     {
         if (operator == '＋' || operator == '－')
             return 1;
