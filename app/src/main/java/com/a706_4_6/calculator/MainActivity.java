@@ -10,9 +10,10 @@ import java.util.Stack;
 import java.math.BigDecimal;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-    Button bt_0,bt_1,bt_2,bt_3,bt_4,bt_5,bt_6,bt_7,bt_8,bt_9,bt_pt,bt_AC,bt_bckspce,bt_pls,bt_mns,bt_mul,bt_div,bt_eq;
-    TextView tv_frml,tv_rslt;
+    Button bt_0,bt_1,bt_2,bt_3,bt_4,bt_5,bt_6,bt_7,bt_8,bt_9,bt_pt,bt_AC,bt_bckspce,bt_pls,bt_mns,bt_mul,bt_div,bt_eq,bt_MC,bt_M_plus,bt_M_minus,bt_MR;
+    TextView tv_frml,tv_rslt,tv_memoryShow;
     boolean clear_flag,point_flag;       //都默认为false
+    BigDecimal memory = null;
     //定义控件对象，通过接口方式实现事件的监听
 
     @Override
@@ -37,8 +38,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         bt_mul = (Button) findViewById(R.id.button_mul);
         bt_div = (Button) findViewById(R.id.button_div);
         bt_eq = (Button) findViewById(R.id.button_eq);
+        bt_M_minus = (Button) findViewById(R.id.button_M_miuns);
+        bt_M_plus = (Button) findViewById(R.id.button_M_plus);
+        bt_MC = (Button) findViewById(R.id.button_MC);
+        bt_MR = (Button) findViewById(R.id.button_MR);
         tv_frml = (TextView) findViewById(R.id.tv_frml);
         tv_rslt = (TextView) findViewById(R.id.tv_rslt);
+        tv_memoryShow=(TextView) findViewById(R.id.tv_memoryShow);
 
         bt_0.setOnClickListener(this);        //设置按钮的点击事件
         bt_1.setOnClickListener(this);
@@ -58,8 +64,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         bt_mul.setOnClickListener(this);
         bt_div.setOnClickListener(this);
         bt_eq.setOnClickListener(this);
-
-
+        bt_M_plus.setOnClickListener(this);
+        bt_M_minus.setOnClickListener(this);
+        bt_MC.setOnClickListener(this);
+        bt_MR.setOnClickListener(this);
     }
 
     @Override
@@ -105,7 +113,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     str="";
                     tv_frml.setText("");
                 }
-                if(judge(str.charAt(str.length()-1)))break;   //最后一个字符是符号时输入符号不起作用
+                if(str.length()!=0) {
+                    if (judge(str.charAt(str.length() - 1))) break;   //最后一个字符是符号时输入符号不起作用
+                }
                 tv_frml.setText(str + ((Button) v).getText());
                 point_flag=false;
                 break;
@@ -115,9 +125,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     clear_flag=false;
                     str="";
                     tv_frml.setText("");
+                    tv_frml.setText("");
                 }
                 point_flag=false;       //小数点标志置无
                 tv_frml.setText("");
+                tv_rslt.setText("");
                 break;
             case R.id.button_bckspce:
                 if(clear_flag)
@@ -129,6 +141,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (str != null && !str.equals("")) {
                     if(str.charAt(str.length()-1)=='.') point_flag=false;   //如果删除的是小数点，则小数点标志置无
                     tv_frml.setText(str.substring(0, str.length() - 1));
+                }
+                break;
+            case R.id.button_MC:
+                memory=null;
+                tv_memoryShow.setText("");
+                break;
+            case R.id.button_M_plus:
+                if(memory==null){
+                    memory=new BigDecimal(tv_rslt.getText().toString());
+                }
+                else{
+                    BigDecimal operands=new BigDecimal(tv_rslt.getText().toString());
+                    memory=memory.add(operands);
+                }
+                tv_memoryShow.setText("M");
+                break;
+            case R.id.button_M_miuns:
+                if(memory==null){
+                    break;
+                }
+                else{
+                    BigDecimal operands=new BigDecimal(tv_rslt.getText().toString());
+                    memory=memory.subtract(operands);
+                }
+                break;
+            case R.id.button_MR:
+                if(memory==null){
+                    break;
+                }
+                else{
+                    tv_rslt.setText(memory.toString());
                 }
                 break;
             case R.id.button_eq:
@@ -150,6 +193,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         clear_flag = true;
 
         try {
+            if(judge(exp.charAt(0)))    //输入框如果以符号开头，执行补第一个操作数操作
+                {
+                    if(tv_rslt.getText().toString()!="")    //如果输出框非空，补输出框内容
+                    {
+                        exp = tv_rslt.getText().toString() + exp;
+                    }
+                    else if(prior(exp.charAt(0))==1){   //输出框为空时，加减法将补第一个操作数为0，乘除不管（按下等号后将抛异常）
+                        exp = "0" + exp;
+                    }
+                }
             tv_rslt.setText(operation(exp));
         } catch (Exception e) {
             tv_rslt.setText("输入格式非法");    //向用户报错
