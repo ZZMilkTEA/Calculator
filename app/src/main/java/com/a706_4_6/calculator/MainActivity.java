@@ -148,6 +148,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 tv_memoryShow.setText("");
                 break;
             case R.id.button_M_plus:
+                if(tv_rslt.getText().toString()!=""){
                 if(memory==null){
                     memory=new BigDecimal(tv_rslt.getText().toString());
                 }
@@ -155,7 +156,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     BigDecimal operands=new BigDecimal(tv_rslt.getText().toString());
                     memory=memory.add(operands);
                 }
-                tv_memoryShow.setText("M");
+                tv_memoryShow.setText("M");}
                 break;
             case R.id.button_M_miuns:
                 if(memory==null){
@@ -266,7 +267,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case '×':
                 return (left.multiply(right)).toString();
             case '÷':
-                return (left.divide(right, 10, BigDecimal.ROUND_HALF_DOWN)).toString();
+                return (left.divide(right, 10, BigDecimal.ROUND_HALF_DOWN)).stripTrailingZeros().toString();
         }
         return "";
     }
